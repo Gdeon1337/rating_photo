@@ -20,12 +20,13 @@ blueprint = Blueprint('photo', url_prefix='/photo', strict_slashes=True)
 @doc.response(200, doc.List(swagger_models.Photo))
 @blueprint.get('')
 @protected()
-async def get_photos(request: Request):
+@inject_user()
+async def get_photos(request: Request, user: User):
     limit = request.args.get('limit')
     offset = request.args.get('offset', default=0)
     raise_if_empty(limit, offset)
     raise_if_not_int(limit, offset)
-    query = db.select([Photo]).select_from(Photo.outerjoin(Assessment)).where(Assessment.id == None)
+    query = db.select([Photo]).select_from(Photo.outerjoin(Assessment)).where(Assessment.user_id != user.id)
     photos = limit_query(query, limit, offset)
     photos = await photos.gino.all()
     return json([photo.to_dict() for photo in photos])
@@ -65,6 +66,7 @@ async def add_rating_photo(request: Request, user: User):
 
 
 def limit_query(query, limit: Optional[str] = None, offset: Optional[str] = None):
+    query = query.where(Assessment.id == None)
     if limit:
         raise_if_not_int(limit)
         query = query.limit(int(limit))
