@@ -26,7 +26,7 @@ async def get_photos(request: Request, user: User):
     offset = request.args.get('offset', default=0)
     raise_if_empty(limit, offset)
     raise_if_not_int(limit, offset)
-    query = db.select([Photo]).select_from(Photo.outerjoin(Assessment)).where(Assessment.user_id != user.id)
+    query = db.select([Photo]).select_from(Photo.outerjoin(Assessment))
     photos = limit_query(query, limit, offset)
     photos = await photos.gino.all()
     return json([photo.to_dict() for photo in photos])
