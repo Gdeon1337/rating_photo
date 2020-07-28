@@ -13,7 +13,7 @@ sanic-envconfig = "^1.3"
 pyroute2 = "^0.5.7"
 sanic = "^19.6 <19.9"
 sanic-openapi = {git = "https://github.com/SandLabs/sanic-openapi.git",branch = "master"}
-sanic-jwt = "^1.3"
+sanic-jwt = "1.3"
 argon2-cffi = "^19.2"
 aioredis = "^1.3"
 tenacity = "^6.0.0"

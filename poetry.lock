@@ -755,13 +755,13 @@ description = "JWT oauth flow for Sanic"
 name = "sanic-jwt"
 optional = false
 python-versions = "*"
-version = "1.4.1"
+version = "1.3.0"
 
 [package.dependencies]
 pyjwt = "*"
 
 [package.extras]
-all = ["sphinx", "sphinx"]
+all = ["sphinx"]
 docs = ["sphinx"]
 
 [[package]]
@@ -785,7 +785,7 @@ description = "Doing all of the boilerplate to create a Sanic Plugin, so you don
 name = "sanic-plugins-framework"
 optional = false
 python-versions = "*"
-version = "0.9.2"
+version = "0.9.3"
 
 [package.dependencies]
 sanic = ">=18.12.0"
@@ -958,7 +958,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "1c4ec3af008f91bb5139f41229fdd67e2fcd83ccae137893705c7147e2e4771a"
+content-hash = "9b9bb3c4f8da1c441f747bd04e61444f59df5fd06fdac2e86af4de67d6658768"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1398,12 +1398,13 @@ sanic-envconfig = [
     {file = "sanic_envconfig-1.3.3.tar.gz", hash = "sha256:60c2e3c991fc025648989bf9e916f1ee5a92bf7ebea39bd6cfdb6011427d01c3"},
 ]
 sanic-jwt = [
-    {file = "sanic-jwt-1.4.1.tar.gz", hash = "sha256:f55b8c50735340cf943af642cbdfedcf774ca3f9028e60d6784d26cd9be9246b"},
+    {file = "sanic-jwt-1.3.0.tar.gz", hash = "sha256:45d1bd86569f09e7cfdc2f7654d6c9a08e69eaf4a19d6109964d2940c2516efd"},
+    {file = "sanic_jwt-1.3.0-py3-none-any.whl", hash = "sha256:976dec0d64ac6e94558fff0f2214dd1950a7cbe959ef88423ce12ad18796dd83"},
 ]
 sanic-openapi = []
 sanic-plugins-framework = [
-    {file = "Sanic-Plugins-Framework-0.9.2.tar.gz", hash = "sha256:e63439f238f9e070649ee5c174d952b2fbc7e845259a3839e109b4bb2fbbb163"},
-    {file = "Sanic_Plugins_Framework-0.9.2-py2.py3-none-any.whl", hash = "sha256:2949374e414a497a3b07b09800d3d0b3cdf24f3a1d3f08591488759099cb7f44"},
+    {file = "Sanic-Plugins-Framework-0.9.3.tar.gz", hash = "sha256:9fd3d6270a676134c8440f78ce6f0817574b456d6b0cb7c3d73c06bf1b7f8956"},
+    {file = "Sanic_Plugins_Framework-0.9.3-py2.py3-none-any.whl", hash = "sha256:347a3657984b828fc6178f86f49f0519f32d45b588724a4f96b12220bce3b4a2"},
 ]
 setoptconf = [
     {file = "setoptconf-0.2.0.tar.gz", hash = "sha256:5b0b5d8e0077713f5d5152d4f63be6f048d9a1bb66be15d089a11c898c3cf49c"},

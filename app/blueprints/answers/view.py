@@ -1,5 +1,5 @@
 from typing import Optional
-
+from sqlalchemy import or_, not_
 from sanic import Blueprint
 from sanic.request import Request
 from sanic.response import json
@@ -26,12 +26,23 @@ async def get_photos(request: Request, user: User):
     offset = request.args.get('offset', default=0)
     raise_if_empty(limit, offset)
     raise_if_not_int(limit, offset)
-    query = db.select([Photo])\
-        .select_from(Photo.outerjoin(Assessment))\
-        .where(Assessment.photo_id.is_(None))
+    exist_assessments = await Assessment.query.where(Assessment.user_id == user.id).gino.all()
+    exist = []
+    for assessment in exist_assessments:
+        exist.append(assessment.photo_id)
+    print(exist)
+    query = Photo.query.where(not_(Photo.id.in_(exist)))
+    #query = db.select([Photo])\
+     #   .select_from(Photo.outerjoin(Assessment))\
+      #  .where(or_(
+       #     Assessment.user_id != user.id,
+        #    Assessment.user_id.is_(None)
+       # ))
     photos = limit_query(query, limit, offset)
     photos = await photos.gino.all()
-    return json([photo.to_dict() for photo in photos])
+    photos = [photo.to_dict() for photo in photos]
+    print(photos)
+    return json(photos)
 
 
 @doc.summary('Получение Количества фотографий')
@@ -68,7 +79,6 @@ async def add_rating_photo(request: Request, user: User):
 
 
 def limit_query(query, limit: Optional[str] = None, offset: Optional[str] = None):
-    query = query.where(Assessment.id == None)
     if limit:
         raise_if_not_int(limit)
         query = query.limit(int(limit))
