@@ -4,7 +4,7 @@ from sanic import Blueprint
 from sanic.request import Request
 from sanic.response import json
 from database import Photo, db, Assessment, User
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, exists
 from app.helpers.swagger import models as swagger_models
 from sanic_openapi import doc  # pylint: disable=wrong-import-order
 from sanic_jwt.decorators import inject_user, protected
@@ -26,22 +26,12 @@ async def get_photos(request: Request, user: User):
     offset = request.args.get('offset', default=0)
     raise_if_empty(limit, offset)
     raise_if_not_int(limit, offset)
-    exist_assessments = await Assessment.query.where(Assessment.user_id == user.id).gino.all()
-    exist = []
-    for assessment in exist_assessments:
-        exist.append(assessment.photo_id)
-    print(exist)
-    query = Photo.query.where(not_(Photo.id.in_(exist)))
-    #query = db.select([Photo])\
-     #   .select_from(Photo.outerjoin(Assessment))\
-      #  .where(or_(
-       #     Assessment.user_id != user.id,
-        #    Assessment.user_id.is_(None)
-       # ))
+    subq = db.select([Assessment.photo_id]).where(Assessment.user_id == user.id).as_scalar()
+    query = Photo.query.where(not_(Photo.id.in_(subq)))
     photos = limit_query(query, limit, offset)
     photos = await photos.gino.all()
-    photos = [photo.to_dict() for photo in photos]
     print(photos)
+    photos = [{'id': str(photo.id), 'path': photo.path} for photo in photos]
     return json(photos)
 
 
