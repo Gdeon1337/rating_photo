@@ -7,7 +7,8 @@ from sanic_openapi import doc  # pylint: disable=wrong-import-order
 from app.helpers import loaders, validators
 from app.helpers.swagger import models as swagger_models
 from app.helpers.swagger.docs import json_consumes
-from database import User, Assessment
+from database import User, Assessment, db
+from sqlalchemy.sql import func
 
 
 blueprint = Blueprint('users', url_prefix='/users', strict_slashes=True)
@@ -26,12 +27,17 @@ async def get_user(request: Request, user: User):  # pylint: disable=unused-argu
 @doc.summary('Получение количества оцененных фоток')
 @doc.security(True)
 @doc.response(200, doc.Dictionary({'count': doc.Integer()}))
+@doc.response(200, doc.List(doc.Dictionary({doc.String('user_login'): doc.Integer()})))
 @blueprint.get('/count_photos')
 @protected()
 @inject_user()
 async def get_count_photo(request: Request, user: User):  # pylint: disable=unused-argument
-    count = await Assessment.query.where(Assessment.user_id == user.id).gino.all()
-    return json({'count': len(count)})
+    if user.login == 'admin':
+        count = await db.select([{User.login: func.count(Assessment.id)}]).select_from(User.outherjoin(Assessment)).gino.all()
+    else:
+        count = await Assessment.query.where(Assessment.user_id == user.id).gino.all()
+        count = {'count': len(count)}
+    return json(count)
 
 
 @doc.summary('Обновление пользователя')

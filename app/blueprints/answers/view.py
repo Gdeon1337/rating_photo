@@ -9,6 +9,7 @@ from app.helpers.swagger import models as swagger_models
 from sanic_openapi import doc  # pylint: disable=wrong-import-order
 from sanic_jwt.decorators import inject_user, protected
 from app.helpers.validators import raise_if_empty, raise_if_not_int, raise_if_not_float
+from app.helpers.loaders import limit_query, admin_load_photos
 
 blueprint = Blueprint('photo', url_prefix='/photo', strict_slashes=True)
 
@@ -26,12 +27,15 @@ async def get_photos(request: Request, user: User):
     offset = request.args.get('offset', default=0)
     raise_if_empty(limit, offset)
     raise_if_not_int(limit, offset)
-    subq = db.select([Assessment.photo_id]).where(Assessment.user_id == user.id).as_scalar()
-    query = Photo.query.where(not_(Photo.id.in_(subq)))
-    photos = limit_query(query, limit, offset)
-    photos = await photos.gino.all()
-    print(photos)
-    photos = [{'id': str(photo.id), 'path': photo.path} for photo in photos]
+    if user.login == 'admin':
+        photos_loads = admin_load_photos(limit=limit, offset=offset)
+        photos = await photos_loads.all()
+    else:
+        subq = db.select([Assessment.photo_id]).where(Assessment.user_id == user.id).as_scalar()
+        query = Photo.query.where(not_(Photo.id.in_(subq)))
+        photos = limit_query(query, limit, offset)
+        photos = await photos.gino.all()
+    photos = [photo.to_dict() for photo in photos]
     return json(photos)
 
 
@@ -66,13 +70,3 @@ async def add_rating_photo(request: Request, user: User):
         rating=float(rating)
     )
     return json({'status': 'ok'})
-
-
-def limit_query(query, limit: Optional[str] = None, offset: Optional[str] = None):
-    if limit:
-        raise_if_not_int(limit)
-        query = query.limit(int(limit))
-    if offset:
-        raise_if_not_int(offset)
-        query = query.offset(int(offset))
-    return query
