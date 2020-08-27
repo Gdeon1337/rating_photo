@@ -19,6 +19,12 @@ blueprint = Blueprint('photo', url_prefix='/photo', strict_slashes=True)
 @doc.consumes({'offset': doc.Integer('Сдвиг')}, default_value=0)
 @doc.consumes({'limit': doc.Integer('Количество')})
 @doc.response(200, doc.List(swagger_models.Photo))
+@doc.response(201, doc.Dictionary(
+    {
+        'photos': doc.List(swagger_models.Photo),
+        'users': doc.List(swagger_models.User)
+    }
+))
 @blueprint.get('')
 @protected()
 @inject_user()

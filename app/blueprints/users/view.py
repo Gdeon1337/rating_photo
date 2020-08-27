@@ -27,7 +27,7 @@ async def get_user(request: Request, user: User):  # pylint: disable=unused-argu
 @doc.summary('Получение количества оцененных фоток')
 @doc.security(True)
 @doc.response(200, doc.Dictionary({'count': doc.Integer()}))
-@doc.response(200, doc.List(doc.Dictionary({doc.String('user_login'): doc.Integer()})))
+@doc.response(201, doc.List(doc.Dictionary({'user_login': doc.Integer()})))
 @blueprint.get('/count_photos')
 @protected()
 @inject_user()
