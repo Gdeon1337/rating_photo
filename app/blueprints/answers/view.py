@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlalchemy import or_, not_
+from sqlalchemy import or_, not_, and_, tuple_
 from sanic import Blueprint
 from sanic.request import Request
 from sanic.response import json
@@ -31,11 +31,15 @@ async def get_photos(request: Request, user: User):
         photos_loads = admin_load_photos(limit=limit, offset=offset)
         photos = await photos_loads.all()
     else:
+        alias_ass = Assessment.alias('ass')
         subq = db.select([Assessment.photo_id]).where(Assessment.user_id == user.id).as_scalar()
+        subq1 = db.select([Assessment.user_id]).where(Assessment.id == alias_ass.id).as_scalar()
         query = Photo.query.where(not_(Photo.id.in_(subq)))
+        query = db.select([Photo]).select_from(Photo.outerjoin(alias_ass, or_(and_(alias_ass.user_id == user.id, alias_ass.photo_id == Photo.id), alias_ass.photo_id == None))).\
+                    where(not_(tuple_(user.id).in_(subq1)))
         photos = limit_query(query, limit, offset)
         photos = await photos.gino.all()
-    photos = [photo.to_dict() for photo in photos]
+    photos = [{'id': str(photo.id), 'path': photo.path} for photo in photos]
     return json(photos)
 
 
