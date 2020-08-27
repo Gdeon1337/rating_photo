@@ -23,7 +23,7 @@ def limit_query(query: Select, limit: Optional[str] = None, offset: Optional[str
 def admin_load_photos(limit: Optional[str] = None, offset: Optional[str] = None):
     alias_ass = Assessment.alias('ass')
     subq = db.select([Assessment]).where(Assessment.photo_id == alias_ass.photo_id).as_scalar()
-    query = db.select((Photo, subq)).select_from(Photo.outherjoin(alias_ass))
+    query = db.select((Photo, subq)).select_from(Photo.outerjoin(alias_ass))
     query = limit_query(query, limit, offset)
 
     return query.gino.load(Photo.load(assessments=subq))

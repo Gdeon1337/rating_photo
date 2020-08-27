@@ -33,7 +33,11 @@ async def get_user(request: Request, user: User):  # pylint: disable=unused-argu
 @inject_user()
 async def get_count_photo(request: Request, user: User):  # pylint: disable=unused-argument
     if user.login == 'admin':
-        count = await db.select((User, func.count(Assessment))).select_from(User.outerjoin(Assessment)).gino.load(User.load(count=func.count(Assessment))).all()
+        alias_assessment = Assessment.alias('ass')
+        count = await db.select((User.login, func.count(alias_assessment.id))) \
+            .select_from(User.outerjoin(alias_assessment)) \
+            .where(User.login != 'admin') \
+            .group_by(User.id).gino.all()
         count = [{'login': user_data[0], 'count': user_data[1]} for user_data in count]
     else:
         count = await Assessment.query.where(Assessment.user_id == user.id).gino.all()
